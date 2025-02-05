@@ -247,6 +247,7 @@ const commonLandscapingTasks = [
   { label: 'Fertilizing', price: 70 },
 ];
 
+// Utility functions to calculate invoice status
 function calculateSoonestDueDate(invoices) {
   const now = new Date();
   const upcomingInvoices = invoices.filter(
@@ -277,271 +278,13 @@ function calculatePastDueInvoices(invoices) {
   return pastDueInvoices;
 }
 
-export default function InvoicesTab() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedInvoiceQuote, setSelectedInvoiceQuote] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const [showNewForm, setShowNewForm] = useState(false);
-  const [formType, setFormType] = useState('Invoice');
-
-  const handleMenuClick = (event, invoiceQuote) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedInvoiceQuote(invoiceQuote);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedInvoiceQuote(null);
-  };
-
-  const handleViewDetails = () => {
-    setShowDetails(true);
-    handleMenuClose();
-  };
-
-  const handleCloseDetails = () => {
-    setShowDetails(false);
-  };
-
-  const handleOpenNewForm = (type) => {
-    setFormType(type);
-    setShowNewForm(true);
-  };
-
-  const handleCloseNewForm = () => {
-    setShowNewForm(false);
-  };
-
-  const soonestDueInvoices = calculateSoonestDueDate(invoiceQuoteData);
-  const pastDueInvoices = calculatePastDueInvoices(invoiceQuoteData);
-
-  const soonestDueTotal = soonestDueInvoices.reduce((acc, invoice) => {
-    return acc + parseFloat(invoice.amount.replace('$', ''));
-  }, 0);
-
-  const pastDueTotal = pastDueInvoices.reduce((acc, invoice) => {
-    return acc + parseFloat(invoice.amount.replace('$', ''));
-  }, 0);
-
-  return (
-    <Box>
-      <StyledPaper elevation={3} style={{ marginBottom: '20px' }}>
-        <Typography variant="h6" gutterBottom>
-          Recent Invoices/Quotes
-        </Typography>
-
-        {/* Soonest Due Invoices Section */}
-        {soonestDueInvoices.length > 0 && (
-          <Box mb={2}>
-            <Typography variant="subtitle1" style={{ color: 'green' }}>
-              Soonest Due Invoices:
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="soonest due invoices">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Number</TableCell>
-                    <TableCell>Customer Name</TableCell>
-                    <TableCell>Due Date</TableCell>
-                    <TableCell>Amount</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {soonestDueInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>{invoice.number}</TableCell>
-                      <TableCell>{invoice.customerName}</TableCell>
-                      <TableCell>{invoice.dueDate}</TableCell>
-                      <TableCell>{invoice.amount}</TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell colSpan={3} align="right">
-                      <Typography style={{ fontWeight: 'bold', color: 'green' }}>
-                        Total:
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography style={{ fontWeight: 'bold', color: 'green' }}>
-                        ${soonestDueTotal.toFixed(2)}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        )}
-
-        {/* Past Due Invoices Section */}
-        {pastDueInvoices.length > 0 && (
-          <Box mb={2}>
-            <Typography variant="subtitle1" style={{ color: 'red' }}>
-              Past Due Invoices:
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="past due invoices">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Number</TableCell>
-                    <TableCell>Customer Name</TableCell>
-                    <TableCell>Due Date</TableCell>
-                    <TableCell>Amount</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {pastDueInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>{invoice.number}</TableCell>
-                      <TableCell>{invoice.customerName}</TableCell>
-                      <TableCell>{invoice.dueDate}</TableCell>
-                      <TableCell>{invoice.amount}</TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell colSpan={3} align="right">
-                      <Typography style={{ fontWeight: 'bold', color: 'red' }}>
-                        Total:
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography style={{ fontWeight: 'bold', color: 'red' }}>
-                        ${pastDueTotal.toFixed(2)}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        )}
-
-        <Box display="flex" alignItems="center" marginBottom="16px">
-          <TextField
-            label="Search Invoices/Quotes"
-            variant="outlined"
-            size="small"
-            style={{ marginRight: '16px' }}
-          />
-          <FormControl
-            variant="outlined"
-            size="small"
-            style={{ marginRight: '16px', width: '150px' }}
-          >
-            <InputLabel id="type-label">Type</InputLabel>
-            <Select
-              labelId="type-label"
-              id="type-select"
-              label="Type"
-            >
-              <MenuItem value="Invoice">Invoice</MenuItem>
-              <MenuItem value="Quote">Quote</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl
-            variant="outlined"
-            size="small"
-            style={{ marginRight: '16px', width: '150px' }}
-          >
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select
-              labelId="status-label"
-              id="status-select"
-              label="Status"
-            >
-              <MenuItem value="Draft">Draft</MenuItem>
-              <MenuItem value="Sent">Sent</MenuItem>
-              <MenuItem value="Paid">Paid</MenuItem>
-              <MenuItem value="Overdue">Overdue</MenuItem>
-              <MenuItem value="Accepted">Accepted</MenuItem>
-              <MenuItem value="Rejected">Rejected</MenuItem>
-            </Select>
-          </FormControl>
-          <Button variant="contained" color="primary" onClick={() => handleOpenNewForm('Invoice')}>
-            <AddIcon />
-            New Invoice
-          </Button>
-          <Button variant="contained" color="primary" onClick={() => handleOpenNewForm('Quote')}>
-            <AddIcon />
-            New Quote
-          </Button>
-        </Box>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Number</TableCell>
-                <TableCell>Customer Name</TableCell>
-                <TableCell>Date Issued</TableCell>
-                <TableCell>Due Date</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {invoiceQuoteData.map((item) => (
-                <TableRow
-                  key={item.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {item.number}
-                  </TableCell>
-                  <TableCell>{item.customerName}</TableCell>
-                  <TableCell>{item.dateIssued}</TableCell>
-                  <TableCell>{item.dueDate}</TableCell>
-                  <TableCell>{item.amount}</TableCell>
-                  <TableCell>{item.status}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      aria-label="more"
-                      aria-controls="invoice-quote-menu"
-                      aria-haspopup="true"
-                      onClick={(event) => handleMenuClick(event, item)}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Menu
-          id="invoice-quote-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleViewDetails}>View Details</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Delete</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Generate Reports</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Export Data</MenuItem>
-        </Menu>
-      </StyledPaper>
-
-      <InvoiceQuoteDetails
-        open={showDetails}
-        invoiceQuote={selectedInvoiceQuote}
-        onClose={handleCloseDetails}
-      />
-
-      <NewInvoiceQuoteForm
-        open={showNewForm}
-        onClose={handleCloseNewForm}
-        type={formType}
-      />
-    </Box>
-  );
-}
-
+// InvoiceQuoteDetails component
 function InvoiceQuoteDetails({ open, invoiceQuote, onClose }) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{invoiceQuote?.type} Details - {invoiceQuote?.number}</DialogTitle>
+      <DialogTitle>
+        {invoiceQuote?.type} Details - {invoiceQuote?.number}
+      </DialogTitle>
       <DialogContent>
         <Typography variant="subtitle1">Customer: {invoiceQuote?.customerName}</Typography>
         <Typography>Date Issued: {invoiceQuote?.dateIssued}</Typography>
@@ -559,6 +302,7 @@ function InvoiceQuoteDetails({ open, invoiceQuote, onClose }) {
   );
 }
 
+// NewInvoiceQuoteForm component
 function NewInvoiceQuoteForm({ open, onClose, type }) {
   const [tabValue, setTabValue] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState('');
@@ -728,5 +472,292 @@ function NewInvoiceQuoteForm({ open, onClose, type }) {
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+// Main InvoicesTab component
+export default function InvoicesTab() {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedInvoiceQuote, setSelectedInvoiceQuote] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [formType, setFormType] = useState('Invoice');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+
+  const handleMenuClick = (event, invoiceQuote) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedInvoiceQuote(invoiceQuote);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedInvoiceQuote(null);
+  };
+
+  const handleViewDetails = () => {
+    setShowDetails(true);
+    handleMenuClose();
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+  };
+
+  const handleOpenNewForm = (type) => {
+    setFormType(type);
+    setShowNewForm(true);
+  };
+
+  const handleCloseNewForm = () => {
+    setShowNewForm(false);
+  };
+
+  // Calculate invoice status
+  const soonestDueInvoices = calculateSoonestDueDate(invoiceQuoteData);
+  const pastDueInvoices = calculatePastDueInvoices(invoiceQuoteData);
+
+  const soonestDueTotal = soonestDueInvoices.reduce((acc, invoice) => {
+    return acc + parseFloat(invoice.amount.replace('$', ''));
+  }, 0);
+
+  const pastDueTotal = pastDueInvoices.reduce((acc, invoice) => {
+    return acc + parseFloat(invoice.amount.replace('$', ''));
+  }, 0);
+
+  // Filtered invoice data
+  const filteredInvoiceQuoteData = invoiceQuoteData.filter((item) => {
+    const searchRegex = new RegExp(searchQuery, 'i');
+    const typeMatch = filterType ? item.type === filterType : true;
+    const statusMatch = filterStatus ? item.status === filterStatus : true;
+
+    return (
+      searchRegex.test(item.number) ||
+      searchRegex.test(item.customerName) ||
+      searchRegex.test(item.status)
+    ) && typeMatch && statusMatch;
+  });
+
+  return (
+    <Box>
+      <StyledPaper elevation={3} style={{ marginBottom: '20px' }}>
+        {/* Due Soon Invoices Section */}
+        {soonestDueInvoices.length > 0 && (
+          <Box mb={2}>
+            <Typography variant="h6" gutterBottom style={{ color: 'green' }}>
+              Due Soon:
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="soonest due invoices">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Number</TableCell>
+                    <TableCell>Customer Name</TableCell>
+                    <TableCell>Due Date</TableCell>
+                    <TableCell>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {soonestDueInvoices.map((invoice) => (
+                    <TableRow key={invoice.id}>
+                      <TableCell>{invoice.number}</TableCell>
+                      <TableCell>{invoice.customerName}</TableCell>
+                      <TableCell>{invoice.dueDate}</TableCell>
+                      <TableCell>{invoice.amount}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={3} align="right">
+                      <Typography style={{ fontWeight: 'bold', color: 'green' }}>
+                        Total:
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography style={{ fontWeight: 'bold', color: 'green' }}>
+                        ${soonestDueTotal.toFixed(2)}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
+
+        {/* Past Due Invoices Section */}
+        {pastDueInvoices.length > 0 && (
+          <Box mb={2}>
+            <Typography variant="h6" gutterBottom style={{ color: 'red' }}>
+              Past Due:
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="past due invoices">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Number</TableCell>
+                    <TableCell>Customer Name</TableCell>
+                    <TableCell>Due Date</TableCell>
+                    <TableCell>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {pastDueInvoices.map((invoice) => (
+                    <TableRow key={invoice.id}>
+                      <TableCell>{invoice.number}</TableCell>
+                      <TableCell>{invoice.customerName}</TableCell>
+                      <TableCell>{invoice.dueDate}</TableCell>
+                      <TableCell>{invoice.amount}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={3} align="right">
+                      <Typography style={{ fontWeight: 'bold', color: 'red' }}>
+                        Total:
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography style={{ fontWeight: 'bold', color: 'red' }}>
+                        ${pastDueTotal.toFixed(2)}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
+
+        {/* Invoice Database Section */}
+        <Typography variant="h6" gutterBottom>
+          Invoice Database
+        </Typography>
+        <Box display="flex" alignItems="center" marginBottom="16px">
+          <TextField
+            label="Search Invoices/Quotes"
+            variant="outlined"
+            size="small"
+            style={{ marginRight: '16px' }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <FormControl
+            variant="outlined"
+            size="small"
+            style={{ marginRight: '16px', width: '150px' }}
+          >
+            <InputLabel id="type-label">Type</InputLabel>
+            <Select
+              labelId="type-label"
+              id="type-select"
+              label="Type"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="Invoice">Invoice</MenuItem>
+              <MenuItem value="Quote">Quote</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl
+            variant="outlined"
+            size="small"
+            style={{ marginRight: '16px', width: '150px' }}
+          >
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select
+              labelId="status-label"
+              id="status-select"
+              label="Status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="Draft">Draft</MenuItem>
+              <MenuItem value="Sent">Sent</MenuItem>
+              <MenuItem value="Paid">Paid</MenuItem>
+              <MenuItem value="Overdue">Overdue</MenuItem>
+              <MenuItem value="Accepted">Accepted</MenuItem>
+              <MenuItem value="Rejected">Rejected</MenuItem>
+            </Select>
+          </FormControl>
+          <Button variant="contained" color="primary" onClick={() => handleOpenNewForm('Invoice')}>
+            <AddIcon />
+            New Invoice
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => handleOpenNewForm('Quote')}>
+            <AddIcon />
+            New Quote
+          </Button>
+        </Box>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="invoice database table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Number</TableCell>
+                <TableCell>Customer Name</TableCell>
+                <TableCell>Date Issued</TableCell>
+                <TableCell>Due Date</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredInvoiceQuoteData.map((item) => (
+                <TableRow
+                  key={item.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {item.number}
+                  </TableCell>
+                  <TableCell>{item.customerName}</TableCell>
+                  <TableCell>{item.dateIssued}</TableCell>
+                  <TableCell>{item.dueDate}</TableCell>
+                  <TableCell>{item.amount}</TableCell>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      aria-label="more"
+                      aria-controls="invoice-quote-menu"
+                      aria-haspopup="true"
+                      onClick={(event) => handleMenuClick(event, item)}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Menu
+          id="invoice-quote-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleViewDetails}>View Details</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Delete</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Generate Reports</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Export Data</MenuItem>
+        </Menu>
+      </StyledPaper>
+
+      <InvoiceQuoteDetails
+        open={showDetails}
+        invoiceQuote={selectedInvoiceQuote}
+        onClose={handleCloseDetails}
+      />
+
+      <NewInvoiceQuoteForm
+        open={showNewForm}
+        onClose={handleCloseNewForm}
+        type={formType}
+      />
+    </Box>
   );
 }
